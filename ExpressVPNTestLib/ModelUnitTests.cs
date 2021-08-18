@@ -15,15 +15,14 @@ namespace ExpressVPNTestLib
         [SetUp]
         public void Setup()
         {
-
-            ServerList.PrimaryServerList.Load192TestServers(TESTSERVERCOUNT);
+            ServerModel.Instance.Load192TestServers(TESTSERVERCOUNT);
         }
 
         [Test]
         public void Test1()
         {
 
-            Assert.True(ServerList.PrimaryServerList.Servers.Count == TESTSERVERCOUNT);
+            Assert.True(ServerModel.Instance.LocationMgr.ToList().Count == TESTSERVERCOUNT);
         }
     }
 }

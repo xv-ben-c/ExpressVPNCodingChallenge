@@ -35,20 +35,28 @@ namespace ExpressVPNClientViewModel
         }
 
 
+        //FIXME
         //collection view source
 
-        public List<VPNServer> Servers
+        public List<ServerLocation> Servers
         {
             get
             {
-                return ServerList.PrimaryServerList.Servers;
+                return ServerModel.Instance.LocationMgr.PresentationList();
             }
         }
         
 
-        private void Refresh()
+        private async Task Refresh()
         {
-            ServerList.PrimaryServerList.Refresh();
+            //Move to AppConfig FIXME
+
+            string mockAPIURL = "https://private-16d939-codingchallenge2020.apiary-mock.com/locations";
+
+
+            await ServerModel.Instance.RefreshAsync(mockAPIURL);
+            RaisePropertyChanged("Servers");
+            //fixme observable collectioj
         }
 
         private void BestServer()

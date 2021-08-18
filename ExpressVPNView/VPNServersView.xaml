@@ -19,7 +19,19 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <DataGrid Grid.ColumnSpan="3" Height="300" ItemsSource="{Binding Servers}" />
+
+        <ListView  Grid.ColumnSpan="3" Height="300" ItemsSource="{Binding Servers}" >
+            
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <Image  Source="{Binding Icon}"/>
+                        <TextBlock Margin="10,0,0,0" FontSize="12" Text="{Binding Location}"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
         <Button Margin="5,5,0,0" Height="30" Content="Refresh" Grid.Row="1" Command="{Binding RefreshCommand}" />
         <Button Margin="5,5,0,0" Height="30" Content="Select Best Server" Grid.Row="1" Grid.Column="1" Command="{Binding BestServerCommand}" />
         <Button Margin="5,5,5,0" Height="30" Content="Close" Grid.Row="1" Grid.Column="2" Command="{Binding CloseCommand}" />
