@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -7,20 +8,26 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace ExpressVPNClientModel
+namespace ExpressVPNClientModel.LocationServer
 {
-    internal class XMLWebRequestProcessor
+    public class XMLWebRequestProcessor
     {
+        public const string ForbiddenExceptionStr = "The API returned error code 403";
+        public const string GenericExceptionStr = "An unknown error happened";
+        public const string TimeoutExceptionStr = "The request timed out";
 
-        public XmlDocument Response { get; private set; }
+        public XmlDocument ResponseXml { get; private set; }
 
         public Exception RequestException { get; private set; }
 
-        internal XMLWebRequestProcessor(string url)
+        public XMLWebRequestProcessor(string url, WebRequestFactory factory = null)
         {
+            if (factory == null)
+                factory = new WebRequestFactory();
+
             try
             {
-                Response = FetchAndProcess(url);
+                ResponseXml = FetchAndProcess(url, factory);
             }
             catch (Exception ex)
             {
@@ -28,35 +35,67 @@ namespace ExpressVPNClientModel
             }
         }
 
-        private XmlDocument FetchAndProcess(string url)
+        private XmlDocument FetchAndProcess(string url, WebRequestFactory factory)
         {
             if (string.IsNullOrEmpty(url))
                 throw new ArgumentNullException("URL");
 
-            HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
-            request.Method = "GET";
-            request.ContentType = "application/xml";
+            if (factory == null)
+                throw new ArgumentNullException("WebRequestFactory");
 
+            IHttpWebRequest request = factory.Create(url, "GET", "application/xml");
 
             string rawxml;
-            HttpWebResponse response = request.GetResponse() as HttpWebResponse;
+            IHttpWebResponse response;
+            try
+            {
+                response = request.GetResponse();
+            }
+            catch (WebException e) when (e.Status == WebExceptionStatus.Timeout)
+            {
+                // If we got here, it was a timeout exception.
+                throw new Exception(TimeoutExceptionStr);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+
+                //No response / connection error / bad uRL etc
+                throw new Exception(GenericExceptionStr);
+            }
+
+            if (response.StatusCode == HttpStatusCode.Forbidden)
+                throw new Exception(ForbiddenExceptionStr);
+
+            if (response.StatusCode != HttpStatusCode.OK)
+                throw new Exception(GenericExceptionStr);
+
             using (StreamReader reader = new StreamReader(response.GetResponseStream()))
             {
                 rawxml = reader.ReadToEnd().Replace("\n", "");
             }
 
             if (string.IsNullOrEmpty(rawxml))
-                throw new Exception("Null response from web request");
+                throw new Exception(GenericExceptionStr);
 
-            XmlDocument doc = new XmlDocument();
-            doc.LoadXml(rawxml);
-            return doc;
+            try
+            {
+                XmlDocument doc = new XmlDocument();
+                doc.LoadXml(rawxml);
+                return doc;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                throw new Exception(GenericExceptionStr);
+            }
 
         }
 
     }
 
 }
+
 
 
 

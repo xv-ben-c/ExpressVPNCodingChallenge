@@ -9,8 +9,8 @@
              DataContext="{Binding VPNServersVM, Source={StaticResource Locator}}">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="80"/>
             <ColumnDefinition Width="220"/>
+            <ColumnDefinition Width="180"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
@@ -32,8 +32,9 @@
             </ListView.ItemTemplate>
         </ListView>
 
-        <Button Margin="5,5,0,0" Height="30" Content="Refresh" Grid.Row="1" Command="{Binding RefreshCommand}" />
+        <Button Margin="5,5,0,0" Height="30" Content="{Binding RefreshButtonText}" Grid.Row="1" Command="{Binding RefreshCommand}" />
         <Button Margin="5,5,0,0" Height="30" Content="Select Best Server" Grid.Row="1" Grid.Column="1" Command="{Binding BestServerCommand}" />
-        <Button Margin="5,5,5,0" Height="30" Content="Close" Grid.Row="1" Grid.Column="2" Command="{Binding CloseCommand}" />
+        <Button Margin="5,5,5,0" Height="30" Content="Close" Grid.Row="1" Grid.Column="2" Command="{Binding CloseCommand}"
+                CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}" />
     </Grid>
 </UserControl>

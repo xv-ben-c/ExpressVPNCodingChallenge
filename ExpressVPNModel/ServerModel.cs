@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ExpressVPNClientModel.LocationServer;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,6 +15,8 @@ namespace ExpressVPNClientModel
 
         public IconStore Icons { get; private set; } = new IconStore();
 
+        #region Statics
+
         private static ServerModel _Instance;
         public static ServerModel Instance
         {
@@ -25,27 +28,19 @@ namespace ExpressVPNClientModel
                 return _Instance;
             }
         }
+        #endregion
 
         private ServerModel()
         {
 
         }
 
-        public void Load192TestServers(int count)
-        {
-            LocationMgr.AddUpdate("localhost", 0, 0);
+        
 
-            var lh = LocationMgr.Lookup("localhost");
-
-            for (int i = 1; i <= count; i++)
-            {
-                lh.AddAddress($"192.168.0.{i}");
-            }
-        }
+        public string RefreshButtonText { get;private set;} = "Refresh";
 
         public async Task RefreshAsync(string url)
         {
-
             var rp = new XMLWebRequestProcessor(url);
 
             if (rp.RequestException != null)
@@ -54,19 +49,23 @@ namespace ExpressVPNClientModel
             }
             else
             {
-
-                //New or existing servers in the response will be set to Available
-                Update(rp.Response);
+                Update(rp.ResponseXml);
             }
         }
 
-        private void Update(XmlDocument response)
+        /// <summary>
+        /// Create or update LocationServer collection
+        /// Create or update Icons collection
+        /// Set button text
+        /// </summary>
+        /// <param name="responseDoc"></param>
+        private void Update(XmlDocument responseDoc)
         {
-            if (response != null)
+            if (responseDoc != null)
             {
-                XmlNodeList iconList = response.SelectNodes("//expressvpn/icons/icon");
+                XmlNodeList iconList = responseDoc.SelectNodes("//expressvpn/icons/icon");
 
-                var locationList = response.SelectNodes("//expressvpn/locations/location");
+                var locationList = responseDoc.SelectNodes("//expressvpn/locations/location");
 
                 foreach (XmlNode icon in iconList)
                 {
@@ -89,6 +88,14 @@ namespace ExpressVPNClientModel
                         sl.AddAddress(ip);
                     }
                 }
+
+                var textNode = responseDoc.SelectSingleNode("//expressvpn/button_text");
+                if (textNode!=null)
+                {
+                    RefreshButtonText = textNode.InnerText;
+                }
+
+
             }
         }
     }

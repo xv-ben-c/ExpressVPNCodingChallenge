@@ -55,7 +55,7 @@ namespace ExpressVPNClientModel
             AddressesList.Clear();
         }
 
-        internal void AddAddress(string addr)
+        public void AddAddress(string addr)
         {
             if (!string.IsNullOrEmpty(addr))
             {

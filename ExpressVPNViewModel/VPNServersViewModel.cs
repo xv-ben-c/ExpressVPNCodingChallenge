@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 namespace ExpressVPNClientViewModel
@@ -17,35 +18,47 @@ namespace ExpressVPNClientViewModel
 
         public void Activated(object state)
         {
-            //throw new NotImplementedException();
         }
 
         public ICommand RefreshCommand { get; private set; }
         public ICommand BestServerCommand { get; private set; }
-        public ICommand CloseCommand { get; private set; }
+        //public ICommand CloseCommand { get; private set; }
 
-        private MainViewModel MainVM;
+        public RelayCommand<Window> CloseCommand { get; private set; }
+
+        private MainViewModel MainVM; //FIXME
 
         public VPNServersViewModel(MainViewModel mainVM)
         {
             MainVM = mainVM;
-            RefreshCommand = new RelayCommand(() => Refresh());
+            RefreshCommand = new RelayCommand(async () => await Refresh());
             BestServerCommand = new RelayCommand(() => BestServer());
-            CloseCommand = new RelayCommand(() => Quit());
+            CloseCommand = new RelayCommand<Window>(w => Quit(w));
+
+            //Initial population async
+            Refresh();
         }
 
 
         //FIXME
         //collection view source
 
+        #region Dependency Props
+
+        /// <summary>
+        /// 
+        /// </summary>
         public List<ServerLocation> Servers
         {
-            get
-            {
-                return ServerModel.Instance.LocationMgr.PresentationList();
-            }
+            get { return ServerModel.Instance.LocationMgr.PresentationList(); }
         }
-        
+
+        public string RefreshButtonText
+        {
+            get { return ServerModel.Instance.RefreshButtonText; }
+        }
+
+        #endregion
 
         private async Task Refresh()
         {
@@ -65,10 +78,12 @@ namespace ExpressVPNClientViewModel
 
         }
 
-        private void Quit()
+        private void Quit(Window w)
         {
-
-
+            if (w != null)
+            {
+                w.Close();
+            }
         }
 
     }

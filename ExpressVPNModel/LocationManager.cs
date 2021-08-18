@@ -27,7 +27,7 @@ namespace ExpressVPNClientModel
              return Locations.Values.Where(x=>x.Available).OrderBy(x=>x.SortOrder).ToList();
         }
 
-        internal ServerLocation AddUpdate(string locn, int sortOrder, int iconId)
+        public ServerLocation AddUpdate(string locn, int sortOrder, int iconId)
         {
             ServerLocation sl = Lookup(locn);
 
@@ -44,7 +44,7 @@ namespace ExpressVPNClientModel
         }
 
 
-        internal ServerLocation Lookup(string locn)
+        public ServerLocation Lookup(string locn)
         {
             return Locations.ContainsKey(locn.ToLower()) ? Locations[locn.ToLower()] : null;
         }
