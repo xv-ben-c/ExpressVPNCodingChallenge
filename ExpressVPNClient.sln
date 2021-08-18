@@ -1,0 +1,49 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31515.178
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpressVPNClientModel", "ExpressVPNModel\ExpressVPNClientModel.csproj", "{292B9BDF-A0A7-49C9-A686-B50DB4B26A40}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpressVPNClientViewModel", "ExpressVPNViewModel\ExpressVPNClientViewModel.csproj", "{5D258AE7-5AB7-4C81-BA69-751FAFAAF42B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpressVPNClientView", "ExpressVPNView\ExpressVPNClientView.csproj", "{81C70460-DD6D-4FA6-9469-F1AB1DFB4EBE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpressVPNClient", "ExpressVPN\ExpressVPNClient.csproj", "{D764A91D-EAD8-48C5-9956-F81F3FBB354D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpressVPNTestLib", "ExpressVPNTestLib\ExpressVPNTestLib.csproj", "{F1417DCA-FB34-463C-941B-6FBB2D1C118F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{292B9BDF-A0A7-49C9-A686-B50DB4B26A40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{292B9BDF-A0A7-49C9-A686-B50DB4B26A40}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{292B9BDF-A0A7-49C9-A686-B50DB4B26A40}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{292B9BDF-A0A7-49C9-A686-B50DB4B26A40}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D258AE7-5AB7-4C81-BA69-751FAFAAF42B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D258AE7-5AB7-4C81-BA69-751FAFAAF42B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D258AE7-5AB7-4C81-BA69-751FAFAAF42B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D258AE7-5AB7-4C81-BA69-751FAFAAF42B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{81C70460-DD6D-4FA6-9469-F1AB1DFB4EBE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{81C70460-DD6D-4FA6-9469-F1AB1DFB4EBE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{81C70460-DD6D-4FA6-9469-F1AB1DFB4EBE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{81C70460-DD6D-4FA6-9469-F1AB1DFB4EBE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D764A91D-EAD8-48C5-9956-F81F3FBB354D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D764A91D-EAD8-48C5-9956-F81F3FBB354D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D764A91D-EAD8-48C5-9956-F81F3FBB354D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D764A91D-EAD8-48C5-9956-F81F3FBB354D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1417DCA-FB34-463C-941B-6FBB2D1C118F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1417DCA-FB34-463C-941B-6FBB2D1C118F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1417DCA-FB34-463C-941B-6FBB2D1C118F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1417DCA-FB34-463C-941B-6FBB2D1C118F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8CA40DE1-4788-473F-A8F0-172F0E4E7C6F}
+	EndGlobalSection
+EndGlobal
