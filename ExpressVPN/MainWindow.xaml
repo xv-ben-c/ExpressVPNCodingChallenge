@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:ExpressVPN"
         xmlns:vw="clr-namespace:ExpressVPNClientView;assembly=ExpressVPNClientView"
         mc:Ignorable="d"
-        Title="Express VPN" Width="505" Height="400" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+        Title="Express VPN" Width="505" Height="400" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Closing="Window_Closing"
+        DataContext="{Binding MainVM, Source={StaticResource Locator}}">
     <Grid>
         <vw:VPNServersView/>
     </Grid>

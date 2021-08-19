@@ -1,10 +1,14 @@
 ﻿using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.Command;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
+using ExpressVPNClientModel;
 
 namespace ExpressVPNClientViewModel
 {
@@ -22,6 +26,9 @@ namespace ExpressVPNClientViewModel
     /// </summary>
     public class MainViewModel : ViewModelBase
     {
+        internal string ServerLocationsURL { get; private set; }
+        public ICommand MainWndClosingCommand { get; private set; }
+
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
@@ -36,17 +43,19 @@ namespace ExpressVPNClientViewModel
             ////    // Code runs "for real"
             ////}
             ///
-            int brk = 1;
 
-           // SetupView(VPNServersViewModel.ViewName, new HomePageViewFinal(ViewConstants.PageType.Application), new VPNServersViewModel(this));
-
-
+            MainWndClosingCommand = new RelayCommand(() => MainWindowClosing());
+            ServerLocationsURL = ConfigurationManager.AppSettings["ServerLocatorURL"];
         }
 
-        private void SetupView(string viewName, FrameworkElement view, ViewModelBase viewModel)
+
+        private void MainWindowClosing()
         {
-
+            Mouse.OverrideCursor = Cursors.Wait;
+            ServerModel.Instance?.Shutdown();
+            Mouse.OverrideCursor = Cursors.Arrow;
         }
+
     }
 
 }

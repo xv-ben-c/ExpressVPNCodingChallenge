@@ -11,7 +11,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpressVPNClientView", "Exp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpressVPNClient", "ExpressVPN\ExpressVPNClient.csproj", "{D764A91D-EAD8-48C5-9956-F81F3FBB354D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpressVPNTestLib", "ExpressVPNTestLib\ExpressVPNTestLib.csproj", "{F1417DCA-FB34-463C-941B-6FBB2D1C118F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExpressVPNTestLib", "ExpressVPNTestLib\ExpressVPNTestLib.csproj", "{F1417DCA-FB34-463C-941B-6FBB2D1C118F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PingService", "PingService\PingService.csproj", "{CF1F4AA2-5036-4348-8BF9-14EDEE545BA3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{F1417DCA-FB34-463C-941B-6FBB2D1C118F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F1417DCA-FB34-463C-941B-6FBB2D1C118F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F1417DCA-FB34-463C-941B-6FBB2D1C118F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF1F4AA2-5036-4348-8BF9-14EDEE545BA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF1F4AA2-5036-4348-8BF9-14EDEE545BA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF1F4AA2-5036-4348-8BF9-14EDEE545BA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF1F4AA2-5036-4348-8BF9-14EDEE545BA3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

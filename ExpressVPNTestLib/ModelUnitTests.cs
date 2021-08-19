@@ -5,6 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using ExpressVPNClientModel;
+using CommonServiceLocator;
+using GalaSoft.MvvmLight.Ioc;
+using ExpressVPNClientModel.LocationServer;
 
 namespace ExpressVPNTestLib
 {
@@ -16,13 +19,19 @@ namespace ExpressVPNTestLib
         [SetUp]
         public void Setup()
         {
+            ServiceLocator.SetLocatorProvider(() => SimpleIoc.Default);
+            SimpleIoc.Default.Register<IWebRequestProcessor, XMLWebRequestProcessor>();
 
+            //Note - PingService not started here. Tested separetely (PingServiceTests.cs)
+            ServerModel.Init(ServiceLocator.Current, "https://private-16d939-codingchallenge2020.apiary-mock.com/locations", null, false);
+
+            Assert.NotNull(ServerModel.Instance);
+            Assert.NotNull(ServerModel.Instance.LocationMgr);
         }
 
         [Test]
         public void TestLocationManager()
         {
-            Assert.NotNull(ServerModel.Instance.LocationMgr);
 
             Assert.True(ServerModel.Instance.LocationMgr.ToList().Count == 0);
 
@@ -53,6 +62,36 @@ namespace ExpressVPNTestLib
 
             //Aix (85)
             Assert.True(ServerModel.Instance.LocationMgr.PresentationList().LastOrDefault() == aix);
+
+        }
+
+        [Test]
+        public async Task TestMockData()
+        {
+            Assert.True(ServerModel.Instance.LocationMgr.ToList().Count == 2);
+
+             //Load an additional 6 locations from mock api
+            await ServerModel.Instance.RefreshAsync();
+
+            Assert.True(ServerModel.Instance.LocationMgr.PresentationList().Count == 8);
+
+            //Expected Sort order
+            /*
+              <location name="Berlin" sort_order="21" >
+              <location name="Los Angeles" sort_order="80">
+              <location name="AIX-EN-PROVENCE" sort_order="85">
+              <location name="LA 2 - Best for North China" sort_order="90">
+              <location name="New York City" sort_order="100" ">
+              <location name="UK - Berkshire" sort_order="175">
+              <location name="UK - London" sort_order="185" >
+              <location name="UK - Isle of Man" sort_order="195" >
+             
+             */
+
+            Assert.IsTrue(ServerModel.Instance.LocationMgr.PresentationList()[0].Location == BERLIN);
+            Assert.IsTrue(ServerModel.Instance.LocationMgr.PresentationList()[1].Location == "Los Angeles");
+            Assert.IsTrue(ServerModel.Instance.LocationMgr.PresentationList()[2].Location == AIX);
+
 
         }
 

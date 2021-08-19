@@ -1,6 +1,7 @@
 ﻿using ExpressVPNClientViewModel;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,9 +25,11 @@ namespace ExpressVPNClient
         public MainWindow()
         {
             InitializeComponent();
+        }
 
-            //DataContext= (App.Current.Resources["Locator"] as ViewModelLocator).Main;
-            //moved to XAML
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            (DataContext as MainViewModel).MainWndClosingCommand.Execute(null);
         }
     }
 }

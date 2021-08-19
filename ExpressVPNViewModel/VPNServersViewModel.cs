@@ -1,17 +1,15 @@
-﻿using ExpressVPNClientModel;
+﻿using CommonServiceLocator;
+using ExpressVPNClientModel;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
 namespace ExpressVPNClientViewModel
 {
-    public class VPNServersViewModel : ViewModelBase, IView
+    public class VPNServersViewModel : ViewModelBase
     {
 
         public const string ViewName = "VPNServersPage";
@@ -22,11 +20,10 @@ namespace ExpressVPNClientViewModel
 
         public ICommand RefreshCommand { get; private set; }
         public ICommand BestServerCommand { get; private set; }
-        //public ICommand CloseCommand { get; private set; }
 
         public RelayCommand<Window> CloseCommand { get; private set; }
 
-        private MainViewModel MainVM; //FIXME
+        private MainViewModel MainVM;
 
         public VPNServersViewModel(MainViewModel mainVM)
         {
@@ -35,13 +32,27 @@ namespace ExpressVPNClientViewModel
             BestServerCommand = new RelayCommand(() => BestServer());
             CloseCommand = new RelayCommand<Window>(w => Quit(w));
 
+            if (string.IsNullOrEmpty(MainVM.ServerLocationsURL))
+            {
+                //MessageBox.Show("Missing setting for Server Locator URL","ExpressVPN Client - Configuration Error");
+            }
+
+            //ServiceLocator.Current.GetInstance<IWebRequestProcessor>();
+
+            ServerModel.Init(ServiceLocator.Current, MainVM.ServerLocationsURL, PingUpdate );
+
+
             //Initial population async
             Refresh();
+
         }
 
+        private void PingUpdate()
+        {
+            RaisePropertyChanged("Servers");
+        }
 
-        //FIXME
-        //collection view source
+        
 
         #region Dependency Props
 
@@ -62,14 +73,10 @@ namespace ExpressVPNClientViewModel
 
         private async Task Refresh()
         {
-            //Move to AppConfig FIXME
-
-            string mockAPIURL = "https://private-16d939-codingchallenge2020.apiary-mock.com/locations";
-
-
-            await ServerModel.Instance.RefreshAsync(mockAPIURL);
+            
+            await ServerModel.Instance.RefreshAsync();
             RaisePropertyChanged("Servers");
-            //fixme observable collectioj
+            //TODO  -alternatively use observable collection
         }
 
         private void BestServer()
@@ -79,13 +86,6 @@ namespace ExpressVPNClientViewModel
                 MessageBox.Show("There are no locations with IP addresses at this time", "ExpressVPN Client");
                 return;
             }
-
-            if (!ServerModel.Instance.LocationMgr.PingComplete())
-            {
-                MessageBox.Show("Background ping tests are incomplete. Please try again in a few moments",  "ExpressVPN Client");
-                return;
-            }
-
 
             ServerLocation sl = ServerModel.Instance.LocationMgr.BestServerLocation();
             if (sl==null)
@@ -102,9 +102,9 @@ namespace ExpressVPNClientViewModel
         {
             if (w != null)
             {
-
-                //
-                ServerModel.Instance.Shutdown();
+                //Close background services cleanly
+                MainVM.MainWndClosingCommand.Execute(null);
+               
                 w.Close();
             }
         }

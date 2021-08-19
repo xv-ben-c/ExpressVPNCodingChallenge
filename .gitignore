@@ -6,3 +6,7 @@ CommonServiceLocator.2.0.2
 MvvmLightLibs.5.4.1.1
 obj
 /.vs/ExpressVPNClient/DesignTimeBuild
+System.Configuration.ConfigurationManager.5.0.0
+/packages/System.Security.AccessControl.5.0.0
+/packages/System.Security.Permissions.5.0.0
+/packages/System.Security.Principal.Windows.5.0.0

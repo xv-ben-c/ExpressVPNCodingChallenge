@@ -27,6 +27,16 @@ namespace ExpressVPNClientModel
             return Locations.Values.Where(x => x.Available).OrderBy(x => x.SortOrder).ToList();
         }
 
+        internal List<PingService.IPAddress> OnlineAddressList()
+        {
+            List<PingService.IPAddress> lst = new List<PingService.IPAddress>();
+            foreach (var sl in Locations.Values)
+            {
+                sl.AppendOnlineAddresses(lst);
+            }
+            return lst;
+        }
+
         public int AvailableLocations
         {
             get { return Locations.Values.Where(x => x.Available).Count(); }
@@ -38,7 +48,7 @@ namespace ExpressVPNClientModel
 
             if (sl == null)
             {
-                sl = new ServerLocation(locn, sortOrder, iconId);
+                sl = new ServerLocation(locn, sortOrder, iconId, ServerModel.Instance);
                 Locations.Add(locn.ToLower(), sl);
             }
             else
@@ -55,35 +65,17 @@ namespace ExpressVPNClientModel
         }
 
         /// <summary>
-        /// Run query over ServerLocation: return the sl which has an IP with overall lowest ping RT time
+        /// Run query over all ServerLocation => return the sl which has an IP with overall lowest ping RT time
         /// /// </summary>
         /// <returns></returns>
         public ServerLocation BestServerLocation()
         {
-            var sl = Locations.Values.Where(x => x.Available).OrderBy(x => x.MinRoundTripAddress).FirstOrDefault();
+            var sl = Locations.Values.Where(x => x.MinRoundTripAddress != null).OrderBy(x => x.MinRoundTripAddress).FirstOrDefault();
 
-            if (sl==null)
-                return null;
-
-            return sl.MinRoundTripAddress < int.MaxValue ? sl: null;
+            return sl ?? null;
         }
 
-        public bool PingComplete()
-        {
-            foreach(var sl in Locations.Values)
-            {
-                if (!sl.PingComplete)
-                    return false;
-            }
-            return true;
-        }
 
-        internal void DeleteAddresses()
-        {
-            foreach (var sl in Locations.Values)
-            {
-                sl.ClearAddressList();
-            }
-        }
+
     }
 }

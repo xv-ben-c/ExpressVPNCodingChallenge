@@ -1,18 +1,30 @@
-﻿using ExpressVPNClientModel.LocationServer;
+﻿using CommonServiceLocator;
+using ExpressVPNClientModel.LocationServer;
+using PingService;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 using System.Xml;
 
 namespace ExpressVPNClientModel
 {
-    public class ServerModel
+
+
+    public interface IIconProvider
     {
+        ImageSource GetIcon(int id);
+    }
+
+
+    public class ServerModel : IAddressProvider, IIconProvider
+    {
+        private string ServerLocatorURL;
+
+        private object ModelLock = new object();
 
         public LocationManager LocationMgr { get; private set; } = new LocationManager();
 
@@ -23,51 +35,72 @@ namespace ExpressVPNClientModel
         #region Statics
 
         private static ServerModel _Instance;
+
+        public static void Init(IServiceLocator serviceLocator, string serverlocationsURL, Action uiDel = null, bool startPingService = true)
+        {
+            if (_Instance == null)
+            {
+                _Instance = new ServerModel(serviceLocator, serverlocationsURL, uiDel, startPingService);
+            }
+        }
         public static ServerModel Instance
         {
-            get
-            {
-                if (_Instance == null)
-                    _Instance = new ServerModel();
-
-                return _Instance;
-            }
+            get { return _Instance; }
         }
         #endregion
 
-        private ServerModel()
+        private IServiceLocator ServiceLocator;
+
+        private ServerModel(IServiceLocator serviceLocator, string serverlocatorURL, Action uiDel, bool startPingService)
         {
-            //FIXME DEPENDENCY INJECT THE XMLWebRequestProcessor
-            PingService.Start(LocationMgr, CTSource.Token);
+            if (serviceLocator == null)
+                throw new ArgumentNullException("DI Service Locator");
+
+            if (string.IsNullOrEmpty(serverlocatorURL))
+                throw new ArgumentNullException("Server Locator URL");
+
+            ServerLocatorURL = serverlocatorURL;
+
+            ServiceLocator = serviceLocator;
+
+            if (startPingService)
+                PingService.PingService.Start(this, CTSource.Token, uiDel);
         }
-
-        
-
-
 
         public void Shutdown()
         {
             CTSource.Cancel();
-            PingService.SericeStopped.WaitOne();
-            Debug.WriteLine("Ping Service Stopped");
+            PingService.PingService.SericeStopped.WaitOne();
+            Debug.WriteLine("Ping Service Stopped...");
+            _Instance = null;
         }
-
 
         public string RefreshButtonText { get; private set; } = "Refresh";
 
-        public async Task RefreshAsync(string url)
+        public async Task RefreshAsync()
         {
-            var rp = new XMLWebRequestProcessor(url);
+            lock (ModelLock)
+            {
+                try
+                {
+                    IWebRequestProcessor wprc = ServiceLocator.GetInstance<IWebRequestProcessor>();
 
-            if (rp.RequestException != null)
-            {
-                MessageBox.Show(rp.RequestException.Message, "ExpressVPN Client", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            else
-            {
-                Update(rp.ResponseXml);
+                    wprc.Process(ServerLocatorURL);
+
+                    if (wprc.RequestException != null)
+                        throw wprc.RequestException;
+
+                    Update(wprc.ResponseXml);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "ExpressVPN Client", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
+
+
+
 
         /// <summary>
         /// Create or update LocationServer collection
@@ -96,12 +129,13 @@ namespace ExpressVPNClientModel
                     int icon_id = Convert.ToInt32(locn.Attributes["icon_id"].Value);
 
                     ServerLocation sl = LocationMgr.AddUpdate(name, sortOrder, icon_id);
-                    sl.ClearAddressList();
+                    Debug.Assert(sl != null);
+                    sl.SetAllOffline();
 
                     foreach (XmlNode svr in locn.ChildNodes)
                     {
                         string ip = svr.Attributes["ip"].Value;
-                        sl.AddAddress(ip);
+                        sl.AddAddress(ip); //Sets the ipaddress "online"
                     }
                 }
 
@@ -114,5 +148,25 @@ namespace ExpressVPNClientModel
 
             }
         }
+
+
+        #region Interface IAddressProvider
+        public List<IPAddress> GetAddressList()
+        {
+            lock (ModelLock)
+            {
+                return LocationMgr.OnlineAddressList();
+            }
+        }
+        #endregion
+
+        #region IIconStore
+        public ImageSource GetIcon(int id)
+        {
+            ServerIcon si = Icons.Lookup(id);
+            return si?.IconImageSource;
+        }
+        #endregion
+
     }
 }

@@ -12,6 +12,7 @@ namespace ExpressVPNClientModel
 {
     public class ServerLocation
     {
+        private List<PingService.IPAddress> AddressesList = new List<PingService.IPAddress>();
 
         public string Location { get; private set; }
 
@@ -19,22 +20,49 @@ namespace ExpressVPNClientModel
 
         public int IconId { get; private set; }
 
+        private IIconProvider IconProvider;
+
+        internal ServerLocation(string location, int sortOrder, int iconId, IIconProvider iconstore)
+        {
+            Location = location;
+            SortOrder = sortOrder;
+            IconId = iconId;
+            IconProvider = iconstore;
+        }
+
 
         /// <summary>
         /// A ServerLocation is deemed Available is there exists >0 assoicated IP addresses
         /// </summary>
         public bool Available
         {
-            get { return AddressesList.Count > 0; }
+            get { return AddressesList.Where(a => !a.Offline).Any(); }
         }
 
         public ImageSource Icon
         {
             get
             {
-                ServerIcon si = ServerModel.Instance.Icons.Lookup(IconId);
+                return IconProvider!=null ? IconProvider.GetIcon(IconId) : null;
+            }
+        }
 
-                return si?.IconImageSource;
+        internal void AppendOnlineAddresses(List<PingService.IPAddress> lst)
+        {
+            if (lst != null)
+                lst.AddRange(AddressesList.Where(a => !a.Offline).ToList());
+        }
+
+        public string LocationStatus
+        {
+            get
+            {
+                if (!Available)
+                    return "-";
+
+                long? minrt = MinRoundTripAddress;
+
+                return minrt == null ? "..." : $"{minrt}ms";
             }
         }
 
@@ -46,7 +74,7 @@ namespace ExpressVPNClientModel
         /// <summary>
         /// Returns the minimum of the ping round trip times for all IPs associated with this location
         /// </summary>
-        internal long MinRoundTripAddress
+        internal long? MinRoundTripAddress
         {
             get
             {
@@ -54,33 +82,15 @@ namespace ExpressVPNClientModel
 
                 foreach (var a in AddressesList)
                 {
-                    if (a.PingRoundTrip.HasValue)
+                    if (!a.Offline && a.PingRoundTrip.HasValue)
                         minrt = Math.Min(minrt, a.PingRoundTrip.Value);
                 }
-                return minrt;
+
+                return minrt == int.MaxValue ? null : (long?)minrt;
             }
         }
 
-        public List<IPAddress> AddressesList { get; private set; } = new List<IPAddress>();
-        public bool PingComplete
-        {
-            get
-            {
-                foreach (var a in AddressesList)
-                {
-                    if (!a.PingRoundTrip.HasValue)
-                       return false;
-                }
-                return true;
-            }
-        }
 
-        internal ServerLocation(string location, int sortOrder, int iconId)
-        {
-            Location = location;
-            SortOrder = sortOrder;
-            IconId = iconId;
-        }
 
         internal void Update(int sortOrder, int iconId)
         {
@@ -88,21 +98,25 @@ namespace ExpressVPNClientModel
             IconId = iconId;
         }
 
-        internal void ClearAddressList()
+        internal void SetAllOffline()
         {
-            AddressesList.Clear();
+            AddressesList.ForEach(a => a.SetOffline(true));
         }
 
         public void AddAddress(string addr)
         {
             if (!string.IsNullOrEmpty(addr))
             {
-                //Ignore duplicates
 
                 var ip = AddressesList.FirstOrDefault(x => x.Address == addr);
+
                 if (ip == null)
                 {
-                    AddressesList.Add(new IPAddress(addr));
+                    AddressesList.Add(new PingService.IPAddress(addr));
+                }
+                else
+                {
+                    ip.SetOffline(false);
                 }
             }
 

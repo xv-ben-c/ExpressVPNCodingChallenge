@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Net;
+using CommonServiceLocator;
+using GalaSoft.MvvmLight.Ioc;
 
 namespace ExpressVPNTestLib
 {
@@ -14,25 +16,29 @@ namespace ExpressVPNTestLib
     {
         private const string MOCKDATAURL = "https://private-16d939-codingchallenge2020.apiary-mock.com/locations";
 
-
-
-
+        private IWebRequestProcessor WebApiProcessor;
         [SetUp]
         public void SetUp()
         {
+            ServiceLocator.SetLocatorProvider(() => SimpleIoc.Default);
+            SimpleIoc.Default.Register<IWebRequestProcessor, XMLWebRequestProcessor>();
 
+            //These unit tests test the XMLWebRequestProcessor in isolation and do not require the server model
+            //
+            WebApiProcessor = ServiceLocator.Current.GetInstance<IWebRequestProcessor>();
         }
 
         [Test]
-
         public void ValidateParsing()
         {
-            var webApi = new XMLWebRequestProcessor(MOCKDATAURL);
+            Assert.IsTrue(WebApiProcessor != null);
 
-            Assert.True(webApi.ResponseXml != null);
-            Assert.True(webApi.RequestException == null);
+            WebApiProcessor.Process(MOCKDATAURL);
 
-            var doc = webApi.ResponseXml;
+            Assert.True(WebApiProcessor.ResponseXml != null);
+            Assert.True(WebApiProcessor.RequestException == null);
+
+            var doc = WebApiProcessor.ResponseXml;
 
             XmlNodeList iconList = doc.SelectNodes("//expressvpn/icons/icon");
             Assert.True(iconList != null && iconList.Count == 3);
@@ -55,56 +61,73 @@ namespace ExpressVPNTestLib
         }
 
         [Test]
-        public void TestWebApiErrorHandling()
+        public void TestWebApiForbidden()
         {
             //Test for  403 Forbidden  (mock response)
-            {
-                var webApi = new XMLWebRequestProcessor("http://example.com", new MockApiWebRequestFactory(
-                     new MockWebRequestWithKnownStatusCode(HttpStatusCode.Forbidden)));
 
-                Assert.IsTrue(webApi.RequestException != null);
-                Assert.IsTrue(webApi.RequestException.Message == XMLWebRequestProcessor.ForbiddenExceptionStr);
-            }
+            var requestFactory = new MockApiWebRequestFactory(new MockWebRequestWithKnownStatusCode(HttpStatusCode.Forbidden));
 
+            WebApiProcessor.Process("http://example.com", requestFactory);
 
+            Assert.IsTrue(WebApiProcessor.ResponseXml == null);
+            Assert.IsTrue(WebApiProcessor.RequestException != null);
+            Assert.IsTrue(WebApiProcessor.RequestException.Message == XMLWebRequestProcessor.ForbiddenExceptionStr);
+        }
+
+        [Test]
+        public void TestWebApiBadRequest()
+        {
             //Test for 400 Bad Request (mock response)
-            {
-                var webApi = new XMLWebRequestProcessor("http://example.com", new MockApiWebRequestFactory(
-                     new MockWebRequestWithKnownStatusCode(HttpStatusCode.BadRequest)));
 
-                Assert.IsTrue(webApi.RequestException != null);
-                Assert.IsTrue(webApi.RequestException.Message == XMLWebRequestProcessor.GenericExceptionStr);
-            }
+            var requestFactory = new MockApiWebRequestFactory(new MockWebRequestWithKnownStatusCode(HttpStatusCode.BadRequest));
 
-            //Test for timeout (mock response)
-            {
-                var webApi = new XMLWebRequestProcessor("http://example.com", new MockApiWebRequestFactory(
-                    new MockWebRequestWithTimeout()));
+            WebApiProcessor.Process("http://example.com", requestFactory);
 
-                Assert.IsTrue(webApi.RequestException != null);
-                Assert.IsTrue(webApi.RequestException.Message == XMLWebRequestProcessor.TimeoutExceptionStr);
-            }
-
-            //Test for timeout - note this makes a real web request
-            {
-                var webApi = new XMLWebRequestProcessor("https://www.google.com:81/");
-                Assert.IsTrue(webApi.RequestException != null);
-                Assert.IsTrue(webApi.RequestException.Message == XMLWebRequestProcessor.TimeoutExceptionStr);
-            }
-
-
-            //Test for bad URL - note this makes a real web request
-            {
-                var webApiMock = new XMLWebRequestProcessor("http://exxxxample.xyzz/serverlocations");
-
-                Assert.IsTrue(webApiMock.RequestException != null);
-                Assert.IsTrue(webApiMock.RequestException.Message == XMLWebRequestProcessor.GenericExceptionStr);
-            }
-
-
-
-
+            Assert.IsTrue(WebApiProcessor.ResponseXml == null);
+            Assert.IsTrue(WebApiProcessor.RequestException != null);
+            Assert.IsTrue(WebApiProcessor.RequestException.Message == XMLWebRequestProcessor.GenericExceptionStr);
 
         }
+
+        [Test]
+        public void TestWebApiTimeoutMock()
+        {
+            //Test for timeout (mock response)
+
+            var requestFactory = new MockApiWebRequestFactory(new MockWebRequestWithTimeout());
+            WebApiProcessor.Process("http://example.com", requestFactory);
+
+            Assert.IsTrue(WebApiProcessor.ResponseXml == null);
+            Assert.IsTrue(WebApiProcessor.RequestException != null);
+            Assert.IsTrue(WebApiProcessor.RequestException.Message == XMLWebRequestProcessor.TimeoutExceptionStr);
+
+        }
+
+
+        [Test]
+        public void TestWebApiTimeoutReal()
+        {
+            //Test for timeout - note this makes a real web request
+
+            WebApiProcessor.Process("https://www.google.com:81/");
+
+            Assert.IsTrue(WebApiProcessor.ResponseXml == null);
+            Assert.IsTrue(WebApiProcessor.RequestException != null);
+            Assert.IsTrue(WebApiProcessor.RequestException.Message == XMLWebRequestProcessor.TimeoutExceptionStr);
+
+        }
+
+        [Test]
+        public void TestWebApiBadURL()
+        {
+            //Test for bad URL - note this makes a real web request
+            WebApiProcessor.Process("http://exxxxample.xyzz/serverlocations");
+
+            Assert.IsTrue(WebApiProcessor.RequestException != null);
+            Assert.IsTrue(WebApiProcessor.RequestException.Message == XMLWebRequestProcessor.GenericExceptionStr);
+        }
+
+
     }
 }
+

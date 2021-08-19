@@ -10,7 +10,7 @@ using System.Xml;
 
 namespace ExpressVPNClientModel.LocationServer
 {
-    public class XMLWebRequestProcessor
+    public class XMLWebRequestProcessor : IWebRequestProcessor
     {
         public const string ForbiddenExceptionStr = "The API returned error code 403";
         public const string GenericExceptionStr = "An unknown error happened";
@@ -20,8 +20,11 @@ namespace ExpressVPNClientModel.LocationServer
 
         public Exception RequestException { get; private set; }
 
-        public XMLWebRequestProcessor(string url, WebRequestFactory factory = null)
+        public void Process(string url, WebRequestFactory factory = null)
         {
+            ResponseXml=null;
+            RequestException=null;
+
             if (factory == null)
                 factory = new WebRequestFactory();
 
@@ -34,6 +37,8 @@ namespace ExpressVPNClientModel.LocationServer
                 RequestException = ex;
             }
         }
+
+
 
         private XmlDocument FetchAndProcess(string url, WebRequestFactory factory)
         {

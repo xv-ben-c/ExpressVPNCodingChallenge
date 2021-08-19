@@ -1,5 +1,6 @@
 ﻿
 using CommonServiceLocator;
+using ExpressVPNClientModel.LocationServer;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Ioc;
 
@@ -23,12 +24,12 @@ namespace ExpressVPNClientViewModel
     /// This class contains static references to all the view models in the
     /// application and provides an entry point for the bindings.
     /// </summary>
-    public class ViewModelLocator
+    public class DIContainer
     {
         /// <summary>
         /// Initializes a new instance of the ViewModelLocator class.
         /// </summary>
-        public ViewModelLocator()
+        public DIContainer()
         {
             ServiceLocator.SetLocatorProvider(() => SimpleIoc.Default);
 
@@ -45,6 +46,12 @@ namespace ExpressVPNClientViewModel
 
             SimpleIoc.Default.Register<MainViewModel>();
             SimpleIoc.Default.Register<VPNServersViewModel>();
+
+            //Replace the implementation class with altenative if format of server location (API response) document changes
+            //E.g.
+
+            //SimpleIoc.Default.Register<IWebRequestProcessor, JSONWebRequestProcessor>();
+            SimpleIoc.Default.Register<IWebRequestProcessor, XMLWebRequestProcessor>();
         }
 
         public MainViewModel MainVM

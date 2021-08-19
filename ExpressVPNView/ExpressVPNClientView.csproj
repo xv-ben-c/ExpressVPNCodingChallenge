@@ -79,5 +79,11 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ExpressVPNViewModel\ExpressVPNClientViewModel.csproj">
+      <Project>{5d258ae7-5ab7-4c81-ba69-751fafaaf42b}</Project>
+      <Name>ExpressVPNClientViewModel</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

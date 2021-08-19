@@ -4,12 +4,11 @@
              xmlns:local="clr-namespace:ExpressVPN" 
              StartupUri="MainWindow.xaml" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             d1p1:Ignorable="d" xmlns:d1p1="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:vm1="clr-namespace:ExpressVPNClientViewModel;assembly=ExpressVPNVClientViewModel">
+             d1p1:Ignorable="d" xmlns:d1p1="http://schemas.openxmlformats.org/markup-compatibility/2006">
 
     <Application.Resources>
     <ResourceDictionary>
-            <vm:ViewModelLocator x:Key="Locator" d:IsDataSource="True" xmlns:vm="clr-namespace:ExpressVPNClientViewModel;assembly=ExpressVPNClientViewModel" />
+            <vm:DIContainer x:Key="Locator" d:IsDataSource="True" xmlns:vm="clr-namespace:ExpressVPNClientViewModel;assembly=ExpressVPNClientViewModel" />
     </ResourceDictionary>
   </Application.Resources>
 </Application>
