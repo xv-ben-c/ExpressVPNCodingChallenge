@@ -14,9 +14,7 @@ namespace ExpressVPNClientViewModel
 
         public const string ViewName = "VPNServersPage";
 
-        public void Activated(object state)
-        {
-        }
+       
 
         public ICommand RefreshCommand { get; private set; }
         public ICommand BestServerCommand { get; private set; }
@@ -37,22 +35,16 @@ namespace ExpressVPNClientViewModel
                 //MessageBox.Show("Missing setting for Server Locator URL","ExpressVPN Client - Configuration Error");
             }
 
-            //ServiceLocator.Current.GetInstance<IWebRequestProcessor>();
-
             ServerModel.Init(ServiceLocator.Current, MainVM.ServerLocationsURI, PingUpdate );
-
 
             //Initial population async
             Refresh();
-
         }
 
         private void PingUpdate()
         {
             RaisePropertyChanged("Servers");
         }
-
-        
 
         #region Dependency Props
 
@@ -73,7 +65,6 @@ namespace ExpressVPNClientViewModel
 
         private async Task Refresh()
         {
-            
             await ServerModel.Instance.RefreshAsync();
             RaisePropertyChanged("Servers");
             //TODO  -alternatively use observable collection

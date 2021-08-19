@@ -24,6 +24,8 @@ namespace ExpressVPNClientModel
     {
         private string ServerLocatorURI;
 
+        private IServiceLocator ServiceLocator;
+
         private object ModelLock = new object();
 
         public LocationManager LocationMgr { get; private set; } = new LocationManager();
@@ -48,8 +50,6 @@ namespace ExpressVPNClientModel
             get { return _Instance; }
         }
         #endregion
-
-        private IServiceLocator ServiceLocator;
 
         private ServerModel(IServiceLocator serviceLocator, string serverlocatorURL, Action uiDel, bool startPingService)
         {

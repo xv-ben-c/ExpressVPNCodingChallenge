@@ -71,7 +71,6 @@
     <Compile Include="LocationServer\WebRequestFactory.cs" />
     <Compile Include="LocationServer\WebResponseAdapter.cs" />
     <Compile Include="LocationServer\XMLWebRequestProcessor.cs" />
-    <Compile Include="LocationParser.cs" />
     <Compile Include="LocationManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerIcon.cs" />
