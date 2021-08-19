@@ -75,7 +75,9 @@ namespace ExpressVPNClientModel
             return sl ?? null;
         }
 
-
-
+        internal void SetAllOffline()
+        {
+           Locations.Values.ToList().ForEach(l=>l.SetAllOffline());
+        }
     }
 }

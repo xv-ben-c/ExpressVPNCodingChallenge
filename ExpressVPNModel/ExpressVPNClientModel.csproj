@@ -65,7 +65,8 @@
     <Compile Include="Base64StringToBitmap.cs" />
     <Compile Include="IconStore.cs" />
     <Compile Include="IPAddress.cs" />
-    <Compile Include="LocationServer\IWebRequestProcessor.cs" />
+    <Compile Include="LocationServer\XMLFileRequestProcessor.cs" />
+    <Compile Include="LocationServer\IRequestProcessor.cs" />
     <Compile Include="LocationServer\WebRequestAdapter.cs" />
     <Compile Include="LocationServer\WebRequestFactory.cs" />
     <Compile Include="LocationServer\WebResponseAdapter.cs" />

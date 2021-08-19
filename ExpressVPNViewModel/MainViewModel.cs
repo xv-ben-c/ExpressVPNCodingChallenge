@@ -26,7 +26,7 @@ namespace ExpressVPNClientViewModel
     /// </summary>
     public class MainViewModel : ViewModelBase
     {
-        internal string ServerLocationsURL { get; private set; }
+        internal string ServerLocationsURI { get; private set; }
         public ICommand MainWndClosingCommand { get; private set; }
 
         /// <summary>
@@ -45,7 +45,38 @@ namespace ExpressVPNClientViewModel
             ///
 
             MainWndClosingCommand = new RelayCommand(() => MainWindowClosing());
-            ServerLocationsURL = ConfigurationManager.AppSettings["ServerLocatorURL"];
+            ServerLocationsURI = ConfigurationManager.AppSettings["ServerLocatorURI"];
+
+            bool configureForWeb = true;
+            if (Environment.GetCommandLineArgs().Length == 2)
+            {
+                var url = Environment.GetCommandLineArgs()[1];
+                if (url.ToLower().StartsWith("http://") || url.ToLower().StartsWith("https://"))
+                {
+                    //Override the URI in app.config
+                    ServerLocationsURI = url;
+                }
+                else if (url.ToLower().StartsWith("file://"))
+                {
+                    configureForWeb = false;
+                    //Override the URI in app.config
+                    ServerLocationsURI = url;
+                }
+            }
+
+            if (configureForWeb)
+            {
+                //We are processing server locations from web
+                (Application.Current.Resources["Locator"] as DIContainer).ConfigureWebApiProcessor();
+            }
+            else
+            {
+                //We are processing server locations from local file (.xml)
+                (Application.Current.Resources["Locator"] as DIContainer).ConfigurFileApiProcessor();
+            }
+
+
+
         }
 
 

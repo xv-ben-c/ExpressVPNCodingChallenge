@@ -47,12 +47,26 @@ namespace ExpressVPNClientViewModel
             SimpleIoc.Default.Register<MainViewModel>();
             SimpleIoc.Default.Register<VPNServersViewModel>();
 
+
+
+        }
+
+        public void ConfigureWebApiProcessor()
+        {
             //Replace the implementation class with altenative if format of server location (API response) document changes
             //E.g.
 
             //SimpleIoc.Default.Register<IWebRequestProcessor, JSONWebRequestProcessor>();
-            SimpleIoc.Default.Register<IWebRequestProcessor, XMLWebRequestProcessor>();
+            SimpleIoc.Default.Register<IRequestProcessor, XMLWebRequestProcessor>();
         }
+
+
+        public void ConfigurFileApiProcessor()
+        {
+            //Use the XMLFileRequestProcessor when testing with local XML files rather than web response
+            SimpleIoc.Default.Register<IRequestProcessor, XMLFileRequestProcessor>();
+        }
+
 
         public MainViewModel MainVM
         {
@@ -62,7 +76,7 @@ namespace ExpressVPNClientViewModel
             }
         }
 
-         public VPNServersViewModel VPNServersVM
+        public VPNServersViewModel VPNServersVM
         {
             get
             {
@@ -71,7 +85,7 @@ namespace ExpressVPNClientViewModel
         }
 
 
-        
+
         public static void Cleanup()
         {
             // TODO Clear the ViewModels

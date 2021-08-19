@@ -32,14 +32,14 @@ namespace ExpressVPNClientViewModel
             BestServerCommand = new RelayCommand(() => BestServer());
             CloseCommand = new RelayCommand<Window>(w => Quit(w));
 
-            if (string.IsNullOrEmpty(MainVM.ServerLocationsURL))
+            if (string.IsNullOrEmpty(MainVM.ServerLocationsURI))
             {
                 //MessageBox.Show("Missing setting for Server Locator URL","ExpressVPN Client - Configuration Error");
             }
 
             //ServiceLocator.Current.GetInstance<IWebRequestProcessor>();
 
-            ServerModel.Init(ServiceLocator.Current, MainVM.ServerLocationsURL, PingUpdate );
+            ServerModel.Init(ServiceLocator.Current, MainVM.ServerLocationsURI, PingUpdate );
 
 
             //Initial population async

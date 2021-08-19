@@ -22,7 +22,7 @@ namespace ExpressVPNClientModel
 
     public class ServerModel : IAddressProvider, IIconProvider
     {
-        private string ServerLocatorURL;
+        private string ServerLocatorURI;
 
         private object ModelLock = new object();
 
@@ -36,11 +36,11 @@ namespace ExpressVPNClientModel
 
         private static ServerModel _Instance;
 
-        public static void Init(IServiceLocator serviceLocator, string serverlocationsURL, Action uiDel = null, bool startPingService = true)
+        public static void Init(IServiceLocator serviceLocator, string serverlocationsUri, Action uiDel = null, bool startPingService = true)
         {
             if (_Instance == null)
             {
-                _Instance = new ServerModel(serviceLocator, serverlocationsURL, uiDel, startPingService);
+                _Instance = new ServerModel(serviceLocator, serverlocationsUri, uiDel, startPingService);
             }
         }
         public static ServerModel Instance
@@ -59,7 +59,7 @@ namespace ExpressVPNClientModel
             if (string.IsNullOrEmpty(serverlocatorURL))
                 throw new ArgumentNullException("Server Locator URL");
 
-            ServerLocatorURL = serverlocatorURL;
+            ServerLocatorURI = serverlocatorURL;
 
             ServiceLocator = serviceLocator;
 
@@ -83,14 +83,14 @@ namespace ExpressVPNClientModel
             {
                 try
                 {
-                    IWebRequestProcessor wprc = ServiceLocator.GetInstance<IWebRequestProcessor>();
+                    IRequestProcessor wprc = ServiceLocator.GetInstance<IRequestProcessor>();
 
-                    wprc.Process(ServerLocatorURL);
+                    var doc = wprc.Process(ServerLocatorURI);
 
                     if (wprc.RequestException != null)
                         throw wprc.RequestException;
 
-                    Update(wprc.ResponseXml);
+                    Update(doc);
                 }
                 catch (Exception ex)
                 {
@@ -121,6 +121,7 @@ namespace ExpressVPNClientModel
                     Icons.Add(Convert.ToInt32(icon.Attributes["id"].Value), icon.InnerXml.Trim());
                 }
 
+                LocationMgr.SetAllOffline();
 
                 foreach (XmlNode locn in locationList)
                 {
@@ -130,7 +131,7 @@ namespace ExpressVPNClientModel
 
                     ServerLocation sl = LocationMgr.AddUpdate(name, sortOrder, icon_id);
                     Debug.Assert(sl != null);
-                    sl.SetAllOffline();
+                    
 
                     foreach (XmlNode svr in locn.ChildNodes)
                     {

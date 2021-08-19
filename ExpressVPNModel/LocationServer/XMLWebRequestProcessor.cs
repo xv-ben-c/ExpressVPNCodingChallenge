@@ -10,19 +10,17 @@ using System.Xml;
 
 namespace ExpressVPNClientModel.LocationServer
 {
-    public class XMLWebRequestProcessor : IWebRequestProcessor
+    public class XMLWebRequestProcessor : IRequestProcessor
     {
         public const string ForbiddenExceptionStr = "The API returned error code 403";
         public const string GenericExceptionStr = "An unknown error happened";
         public const string TimeoutExceptionStr = "The request timed out";
 
-        public XmlDocument ResponseXml { get; private set; }
 
         public Exception RequestException { get; private set; }
 
-        public void Process(string url, WebRequestFactory factory = null)
+        public XmlDocument Process(string url, WebRequestFactory factory = null)
         {
-            ResponseXml=null;
             RequestException=null;
 
             if (factory == null)
@@ -30,12 +28,14 @@ namespace ExpressVPNClientModel.LocationServer
 
             try
             {
-                ResponseXml = FetchAndProcess(url, factory);
+                return FetchAndProcess(url, factory);
             }
             catch (Exception ex)
             {
                 RequestException = ex;
             }
+
+            return null;
         }
 
 

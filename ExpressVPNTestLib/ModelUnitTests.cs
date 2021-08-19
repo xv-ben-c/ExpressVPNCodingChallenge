@@ -20,7 +20,7 @@ namespace ExpressVPNTestLib
         public void Setup()
         {
             ServiceLocator.SetLocatorProvider(() => SimpleIoc.Default);
-            SimpleIoc.Default.Register<IWebRequestProcessor, XMLWebRequestProcessor>();
+            SimpleIoc.Default.Register<IRequestProcessor, XMLWebRequestProcessor>();
 
             //Note - PingService not started here. Tested separetely (PingServiceTests.cs)
             ServerModel.Init(ServiceLocator.Current, "https://private-16d939-codingchallenge2020.apiary-mock.com/locations", null, false);

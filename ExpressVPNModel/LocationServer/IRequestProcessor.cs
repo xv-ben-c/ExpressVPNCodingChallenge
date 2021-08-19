@@ -7,11 +7,13 @@ using System.Xml;
 
 namespace ExpressVPNClientModel.LocationServer
 {
-    public interface IWebRequestProcessor
+    public interface IRequestProcessor
     {
-        void Process(string url, WebRequestFactory factory = null);
 
-        XmlDocument ResponseXml { get; }
+      
+
+        XmlDocument Process(string url, WebRequestFactory factory = null);
+
 
         Exception RequestException { get; }
 
