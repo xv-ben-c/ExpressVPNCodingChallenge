@@ -30,7 +30,7 @@ namespace ExpressVPNTestLib
         }
 
         [Test]
-        public void TestLocationManager()
+        public void TestA_LocationManager()
         {
 
             Assert.True(ServerModel.Instance.LocationMgr.ToList().Count == 0);
@@ -66,12 +66,37 @@ namespace ExpressVPNTestLib
         }
 
         [Test]
-        public async Task TestMockData()
+        public  void TestB_AsyncRefresh()
         {
+            int cnt1 = ServerModel.Instance.LocationMgr.ToList().Count;
             Assert.True(ServerModel.Instance.LocationMgr.ToList().Count == 2);
 
-             //Load an additional 6 locations from mock api
-            await ServerModel.Instance.RefreshAsync();
+            //Load an additional 6 locations from mock api
+            Task.Run(async () => {  await ServerModel.Instance.RefreshAsync(); }).Wait();
+          
+
+            int cnt = ServerModel.Instance.LocationMgr.PresentationList().Count;
+
+            //Berlin and Aix are **not** refernced in the mock file just loaded, thus will disappear from presentaion collection
+
+            Assert.True(ServerModel.Instance.LocationMgr.PresentationList().Count == 6);
+        }
+
+        [Test]
+        public void TestC_SortOrder()
+        {
+
+            //Add ip for AIX
+            var aix = ServerModel.Instance.LocationMgr.Lookup(AIX);
+            Assert.IsTrue(AIX != null);
+            aix.AddAddress("113.77.335.0");
+
+             //Add ip for BERLIN
+            var berlin = ServerModel.Instance.LocationMgr.Lookup(BERLIN);
+            Assert.IsTrue(berlin != null);
+            berlin.AddAddress("228.92.34.11");
+
+            //Should now be 8 active servers
 
             Assert.True(ServerModel.Instance.LocationMgr.PresentationList().Count == 8);
 
