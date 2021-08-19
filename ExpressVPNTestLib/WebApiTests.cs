@@ -16,7 +16,7 @@ namespace ExpressVPNTestLib
     {
         private const string MOCKDATAURL = "https://private-16d939-codingchallenge2020.apiary-mock.com/locations";
 
-        private IRequestProcessor WebApiProcessor;
+        private IRequestProcessor RequestProcessor;
         [SetUp]
         public void SetUp()
         {
@@ -25,18 +25,18 @@ namespace ExpressVPNTestLib
 
             //These unit tests test the XMLWebRequestProcessor in isolation and do not require the server model
             //
-            WebApiProcessor = ServiceLocator.Current.GetInstance<IRequestProcessor>();
+            RequestProcessor = ServiceLocator.Current.GetInstance<IRequestProcessor>();
         }
 
         [Test]
         public void ValidateParsing()
         {
-            Assert.IsTrue(WebApiProcessor != null);
+            Assert.IsTrue(RequestProcessor != null);
 
-            var doc = WebApiProcessor.Process(MOCKDATAURL);
+            var doc = RequestProcessor.Process(MOCKDATAURL);
 
             Assert.True(doc != null);
-            Assert.True(WebApiProcessor.RequestException == null);
+            Assert.True(RequestProcessor.RequestException == null);
 
 
             XmlNodeList iconList = doc.SelectNodes("//expressvpn/icons/icon");
@@ -66,11 +66,11 @@ namespace ExpressVPNTestLib
 
             var requestFactory = new MockApiWebRequestFactory(new MockWebRequestWithKnownStatusCode(HttpStatusCode.Forbidden));
 
-            var doc = WebApiProcessor.Process("http://example.com", requestFactory);
+            var doc = RequestProcessor.Process("http://example.com", requestFactory);
 
             Assert.IsTrue(doc == null);
-            Assert.IsTrue(WebApiProcessor.RequestException != null);
-            Assert.IsTrue(WebApiProcessor.RequestException.Message == XMLWebRequestProcessor.ForbiddenExceptionStr);
+            Assert.IsTrue(RequestProcessor.RequestException != null);
+            Assert.IsTrue(RequestProcessor.RequestException.Message == XMLWebRequestProcessor.ForbiddenExceptionStr);
         }
 
         [Test]
@@ -80,11 +80,11 @@ namespace ExpressVPNTestLib
 
             var requestFactory = new MockApiWebRequestFactory(new MockWebRequestWithKnownStatusCode(HttpStatusCode.BadRequest));
 
-            var doc = WebApiProcessor.Process("http://example.com", requestFactory);
+            var doc = RequestProcessor.Process("http://example.com", requestFactory);
 
             Assert.IsTrue(doc == null);
-            Assert.IsTrue(WebApiProcessor.RequestException != null);
-            Assert.IsTrue(WebApiProcessor.RequestException.Message == XMLWebRequestProcessor.GenericExceptionStr);
+            Assert.IsTrue(RequestProcessor.RequestException != null);
+            Assert.IsTrue(RequestProcessor.RequestException.Message == XMLWebRequestProcessor.GenericExceptionStr);
 
         }
 
@@ -94,11 +94,11 @@ namespace ExpressVPNTestLib
             //Test for timeout (mock response)
 
             var requestFactory = new MockApiWebRequestFactory(new MockWebRequestWithTimeout());
-            var doc = WebApiProcessor.Process("http://example.com", requestFactory);
+            var doc = RequestProcessor.Process("http://example.com", requestFactory);
 
             Assert.IsTrue(doc == null);
-            Assert.IsTrue(WebApiProcessor.RequestException != null);
-            Assert.IsTrue(WebApiProcessor.RequestException.Message == XMLWebRequestProcessor.TimeoutExceptionStr);
+            Assert.IsTrue(RequestProcessor.RequestException != null);
+            Assert.IsTrue(RequestProcessor.RequestException.Message == XMLWebRequestProcessor.TimeoutExceptionStr);
 
         }
 
@@ -108,11 +108,11 @@ namespace ExpressVPNTestLib
         {
             //Test for timeout - note this makes a real web request
 
-            var doc = WebApiProcessor.Process("https://www.google.com:81/");
+            var doc = RequestProcessor.Process("https://www.google.com:81/");
 
             Assert.IsTrue(doc == null);
-            Assert.IsTrue(WebApiProcessor.RequestException != null);
-            Assert.IsTrue(WebApiProcessor.RequestException.Message == XMLWebRequestProcessor.TimeoutExceptionStr);
+            Assert.IsTrue(RequestProcessor.RequestException != null);
+            Assert.IsTrue(RequestProcessor.RequestException.Message == XMLWebRequestProcessor.TimeoutExceptionStr);
 
         }
 
@@ -120,10 +120,10 @@ namespace ExpressVPNTestLib
         public void TestWebApiBadURL()
         {
             //Test for bad URL - note this makes a real web request
-            WebApiProcessor.Process("http://exxxxample.xyzz/serverlocations");
+            RequestProcessor.Process("http://exxxxample.xyzz/serverlocations");
 
-            Assert.IsTrue(WebApiProcessor.RequestException != null);
-            Assert.IsTrue(WebApiProcessor.RequestException.Message == XMLWebRequestProcessor.GenericExceptionStr);
+            Assert.IsTrue(RequestProcessor.RequestException != null);
+            Assert.IsTrue(RequestProcessor.RequestException.Message == XMLWebRequestProcessor.GenericExceptionStr);
         }
 
 

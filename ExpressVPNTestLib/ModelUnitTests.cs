@@ -29,6 +29,9 @@ namespace ExpressVPNTestLib
             Assert.NotNull(ServerModel.Instance.LocationMgr);
         }
 
+        // NOTE THE ORDERING OF THESE TESTS IS IMPORTANT THUS THE EXPLICIT NAMING CONVENTION OF TestA, TestB  TestC
+        // By default NUnit will run the unit tests in a class in alphabetic order
+
         [Test]
         public void TestA_LocationManager()
         {
