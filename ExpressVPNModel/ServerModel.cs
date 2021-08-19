@@ -1,9 +1,12 @@
 ﻿using ExpressVPNClientModel.LocationServer;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Xml;
 
 namespace ExpressVPNClientModel
@@ -11,9 +14,11 @@ namespace ExpressVPNClientModel
     public class ServerModel
     {
 
-        public LocationManager LocationMgr {get; private set; }  = new LocationManager();
+        public LocationManager LocationMgr { get; private set; } = new LocationManager();
 
         public IconStore Icons { get; private set; } = new IconStore();
+
+        private readonly CancellationTokenSource CTSource = new CancellationTokenSource();
 
         #region Statics
 
@@ -32,12 +37,23 @@ namespace ExpressVPNClientModel
 
         private ServerModel()
         {
-
+            //FIXME DEPENDENCY INJECT THE XMLWebRequestProcessor
+            PingService.Start(LocationMgr, CTSource.Token);
         }
 
         
 
-        public string RefreshButtonText { get;private set;} = "Refresh";
+
+
+        public void Shutdown()
+        {
+            CTSource.Cancel();
+            PingService.SericeStopped.WaitOne();
+            Debug.WriteLine("Ping Service Stopped");
+        }
+
+
+        public string RefreshButtonText { get; private set; } = "Refresh";
 
         public async Task RefreshAsync(string url)
         {
@@ -45,7 +61,7 @@ namespace ExpressVPNClientModel
 
             if (rp.RequestException != null)
             {
-                //FIXME
+                MessageBox.Show(rp.RequestException.Message, "ExpressVPN Client", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             else
             {
@@ -90,7 +106,7 @@ namespace ExpressVPNClientModel
                 }
 
                 var textNode = responseDoc.SelectSingleNode("//expressvpn/button_text");
-                if (textNode!=null)
+                if (textNode != null)
                 {
                     RefreshButtonText = textNode.InnerText;
                 }

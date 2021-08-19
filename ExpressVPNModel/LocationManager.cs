@@ -24,7 +24,12 @@ namespace ExpressVPNClientModel
 
         public List<ServerLocation> PresentationList()
         {
-             return Locations.Values.Where(x=>x.Available).OrderBy(x=>x.SortOrder).ToList();
+            return Locations.Values.Where(x => x.Available).OrderBy(x => x.SortOrder).ToList();
+        }
+
+        public int AvailableLocations
+        {
+            get { return Locations.Values.Where(x => x.Available).Count(); }
         }
 
         public ServerLocation AddUpdate(string locn, int sortOrder, int iconId)
@@ -47,6 +52,30 @@ namespace ExpressVPNClientModel
         public ServerLocation Lookup(string locn)
         {
             return Locations.ContainsKey(locn.ToLower()) ? Locations[locn.ToLower()] : null;
+        }
+
+        /// <summary>
+        /// Run query over ServerLocation: return the sl which has an IP with overall lowest ping RT time
+        /// /// </summary>
+        /// <returns></returns>
+        public ServerLocation BestServerLocation()
+        {
+            var sl = Locations.Values.Where(x => x.Available).OrderBy(x => x.MinRoundTripAddress).FirstOrDefault();
+
+            if (sl==null)
+                return null;
+
+            return sl.MinRoundTripAddress < int.MaxValue ? sl: null;
+        }
+
+        public bool PingComplete()
+        {
+            foreach(var sl in Locations.Values)
+            {
+                if (!sl.PingComplete)
+                    return false;
+            }
+            return true;
         }
 
         internal void DeleteAddresses()

@@ -19,6 +19,10 @@ namespace ExpressVPNClientModel
 
         public int IconId { get; private set; }
 
+
+        /// <summary>
+        /// A ServerLocation is deemed Available is there exists >0 assoicated IP addresses
+        /// </summary>
         public bool Available
         {
             get { return AddressesList.Count > 0; }
@@ -28,14 +32,48 @@ namespace ExpressVPNClientModel
         {
             get
             {
-                var si = ServerModel.Instance.Icons.Lookup(IconId);
+                ServerIcon si = ServerModel.Instance.Icons.Lookup(IconId);
 
-                return si==null ? null : si.IconImageSource;
+                return si?.IconImageSource;
+            }
+        }
+
+        internal void PingAddresses()
+        {
+            AddressesList.ForEach(a => a.Ping());
+        }
+
+        /// <summary>
+        /// Returns the minimum of the ping round trip times for all IPs associated with this location
+        /// </summary>
+        internal long MinRoundTripAddress
+        {
+            get
+            {
+                long minrt = int.MaxValue;
+
+                foreach (var a in AddressesList)
+                {
+                    if (a.PingRoundTrip.HasValue)
+                        minrt = Math.Min(minrt, a.PingRoundTrip.Value);
+                }
+                return minrt;
             }
         }
 
         public List<IPAddress> AddressesList { get; private set; } = new List<IPAddress>();
-
+        public bool PingComplete
+        {
+            get
+            {
+                foreach (var a in AddressesList)
+                {
+                    if (!a.PingRoundTrip.HasValue)
+                       return false;
+                }
+                return true;
+            }
+        }
 
         internal ServerLocation(string location, int sortOrder, int iconId)
         {

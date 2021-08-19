@@ -74,7 +74,27 @@ namespace ExpressVPNClientViewModel
 
         private void BestServer()
         {
-            //Clicking it pops up a dialog with text “According to ping tests I’ve been running in the background, the best location for you appears to be [location name]”.
+            if (ServerModel.Instance.LocationMgr.AvailableLocations == 0)
+            {
+                MessageBox.Show("There are no locations with IP addresses at this time", "ExpressVPN Client");
+                return;
+            }
+
+            if (!ServerModel.Instance.LocationMgr.PingComplete())
+            {
+                MessageBox.Show("Background ping tests are incomplete. Please try again in a few moments",  "ExpressVPN Client");
+                return;
+            }
+
+
+            ServerLocation sl = ServerModel.Instance.LocationMgr.BestServerLocation();
+            if (sl==null)
+            {
+                MessageBox.Show("We don't have any data on best location yet. Please try again in a few moments",  "ExpressVPN Client");
+                return;
+            }
+
+            MessageBox.Show( $"According to ping tests I’ve been running in the background, the best location for you appears to be {sl.Location}", "ExpressVPN Client");
 
         }
 
@@ -82,6 +102,9 @@ namespace ExpressVPNClientViewModel
         {
             if (w != null)
             {
+
+                //
+                ServerModel.Instance.Shutdown();
                 w.Close();
             }
         }
